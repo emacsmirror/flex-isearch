@@ -33,7 +33,7 @@
 ;; characters in between).  You can redefine
 ;; `flex-isearch-compile-regexp' to change this behavior.
 
-;; When `flex-isearch-mode' is enabled, the `flex-isearch-enable'
+;; When `flex-isearch-mode' is enabled, the `flex-isearch-auto'
 ;; variable controls when the flex matching is activated.  See its
 ;; docstring for details.
 
@@ -53,22 +53,22 @@
 (defvar flex-isearch-failed-count 0
   "Used to decide when to activate flex searching ")
 
-(defvar flex-isearch-enabled 'on-failed
+(defvar flex-isearch-auto nil
   "When `flex-isearch-mode' is enabled, this determines when flex
-  searching is activated.  If it is 'always, then flex matching
-  is used for all isearches.  If it is 'on-failed (the default),
-  flex matching will only be used after a standard isearch
-  failed.")
+  searching is automatically activated.  If it is t, then flex
+  matching is used for all isearches.  If it is 'on-failed, flex
+  matching will only be used after a standard isearch failed.  If
+  it is nil, flex searching will not be enabled automatically.")
 
 (defvar flex-isearch-original-search-fun nil
   "Saves the original value of `isearch-search-fun-function' when
   `flex-isearch-mode' is enabled.")
 
-(defvar flex-isearch-prefix "[FLEX] "
+(defvar flex-isearch-message-prefix "[FLEX] "
   "This string is prepended to the isearch prompt when flex
   searching is activated.")
 
-;;; Functions
+;;; Internal Functions
 
 (defun flex-isearch-activate ()
   (setq flex-isearch-activated t)
@@ -110,8 +110,8 @@
         (isearch-regexp
          (if isearch-forward 're-search-forward 're-search-backward))
         ((or flex-isearch-activated
-            (eq flex-isearch-enabled 'always)
-            (and (eq flex-isearch-enabled 'on-failed)
+            (eq flex-isearch-auto 'always)
+            (and (eq flex-isearch-auto 'on-failed)
                (null isearch-success)
                isearch-wrapped
                (> (setq flex-isearch-failed-count (1+ flex-isearch-failed-count))
@@ -130,14 +130,16 @@
 
 (defadvice isearch-message-prefix (after flex-isearch-message-prefix activate)
   (if flex-isearch-activated
-      (setq ad-return-value (concat flex-isearch-prefix ad-return-value))
+      (setq ad-return-value (concat flex-isearch-message-prefix ad-return-value))
     ad-return-value))
+
+;;; External Functions
 
 ;;;###autoload
 (define-minor-mode flex-isearch-mode
   "Flex matching (similar to ido's flex matching) in incremental searches.
 
-When enabled, it transforms a regular isearch into a much looser
+When activated, it transforms a regular isearch into a much looser
 regexp search that will match the original string, but also
 strings that simply contain the characters of the search string
 in order.  For example, a search string of \"thlongstr\" matches
