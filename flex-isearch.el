@@ -47,6 +47,35 @@
 (eval-when-compile
   (require 'cl))
 
+;;; Customization
+
+(defgroup flex-isearch nil
+  "Flex matching (like ido) in isearch."
+  :prefix "flex-isearch-"
+  :group 'isearch
+  :link '(url-link :tag "Development and bug reports"
+                   "https://bitbucket.org/jpkotta/flex-isearch")
+  :link '(url-link :tag "Wiki"
+                   "http://www.emacswiki.org/emacs/FlexIsearch"))
+
+;;;###autoload
+(defcustom flex-isearch-auto nil
+  "Determines when flex searching is automatically activated.
+If it is t, then flex matching is used for all isearches.  If it
+is 'on-failed, flex matching will only be used after a standard
+isearch failed.  If it is nil, flex searching will not be enabled
+automatically."
+  :type '(choice (const :tag "Never" nil)
+                 (const :tag "On failure" on-failed)
+                 (const :tag "Always" t))
+  :group 'flex-isearch)
+
+;;;###autoload
+(defcustom flex-isearch-message-prefix "[FLEX] "
+  "Prepended to the isearch prompt when flex searching is activated."
+  :type 'string
+  :group 'flex-isearch)
+
 ;;; Variables
 
 (defvar flex-isearch-activated nil
@@ -56,20 +85,9 @@
 (defvar flex-isearch-failed-count 0
   "Used to decide when to activate flex searching ")
 
-(defvar flex-isearch-auto nil
-  "When `flex-isearch-mode' is enabled, this determines when flex
-  searching is automatically activated.  If it is t, then flex
-  matching is used for all isearches.  If it is 'on-failed, flex
-  matching will only be used after a standard isearch failed.  If
-  it is nil, flex searching will not be enabled automatically.")
-
 (defvar flex-isearch-original-search-fun nil
   "Saves the original value of `isearch-search-fun-function' when
   `flex-isearch-mode' is enabled.")
-
-(defvar flex-isearch-message-prefix "[FLEX] "
-  "This string is prepended to the isearch prompt when flex
-  searching is activated.")
 
 ;;; Internal Functions
 
