@@ -35,7 +35,9 @@
 
 ;; When `flex-isearch-mode' is enabled, the `flex-isearch-auto'
 ;; variable controls when the flex matching is activated.  See its
-;; docstring for details.
+;; docstring for details.  Also, `isearch-forward' and
+;; `isearch-backward' are advised so that double prefix args (C-u C-u
+;; C-s) will use flex search.
 
 ;;; Code:
 
@@ -133,6 +135,20 @@
       (setq ad-return-value (concat flex-isearch-message-prefix ad-return-value))
     ad-return-value))
 
+(defadvice isearch-forward (around flex-isearch activate)
+  (when (and flex-isearch-mode
+           (equal (ad-get-arg 0) '(16)))
+    (flex-isearch-activate)
+    (ad-set-arg 0 nil))
+  ad-do-it)
+
+(defadvice isearch-backward (around flex-isearch activate)
+  (when (and flex-isearch-mode
+           (equal (ad-get-arg 0) '(16)))
+    (flex-isearch-activate)
+    (ad-set-arg 0 nil))
+  ad-do-it)
+
 ;;; External Functions
 
 ;;;###autoload
@@ -144,7 +160,13 @@ regexp search that will match the original string, but also
 strings that simply contain the characters of the search string
 in order.  For example, a search string of \"thlongstr\" matches
 \"the=long_string\".  See `flex-isearch-regexp-compile' for the actual
-regexp that the search string is transformed to."
+regexp that the search string is transformed to.
+
+When this minor mode is enabled, it puts advice on
+`isearch-forward' and `isearch-backward', making them use the
+flex mode when given a double prefix argument (e.g., C-u C-u
+C-s).  It also uses `flex-isearch-auto' to possibly enable flex
+searching during a normal isearch."
   
   :init-value nil
   (if flex-isearch-mode
