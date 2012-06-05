@@ -6,6 +6,7 @@
 ;; Contributors: Tomohiro Matsuyama
 ;; Keywords: convenience, search
 ;; Version: 20120605
+;; URL: https://bitbucket.org/jpkotta/flex-isearch
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
