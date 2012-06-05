@@ -115,12 +115,12 @@ automatically."
   `search-forward')."
   (let ((regexp (flex-isearch-regexp-compile string)))
     (re-search-forward regexp bound t)))
-      
+
 (defun flex-search-backward (string &optional bound noerror count)
   "A function suitable to be returned by
   `isearch-search-fun-function' (it is called like
   `search-forward')."
-  (let ((regexp (flex-isearch-regexp-compile string))) 
+  (let ((regexp (flex-isearch-regexp-compile string)))
     (re-search-backward regexp bound t)))
 
 (defun flex-isearch-search-fun ()
@@ -186,7 +186,7 @@ When this minor mode is enabled, it puts advice on
 flex mode when given a double prefix argument (e.g., C-u C-u
 C-s).  It also uses `flex-isearch-auto' to possibly enable flex
 searching during a normal isearch."
-  
+
   :init-value nil
   (if flex-isearch-mode
       (progn
