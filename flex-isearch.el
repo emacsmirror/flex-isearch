@@ -5,6 +5,7 @@
 ;; Author: Jonathan Kotta <jpkotta@gmail.com>
 ;; Contributors: Tomohiro Matsuyama
 ;; Keywords: convenience, search
+;; Version: 20120605
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -42,7 +43,6 @@
 
 (eval-when-compile
   (require 'cl))
-(require 'regexp-opt)
 
 ;;; Variables
 
@@ -133,6 +133,7 @@
       (setq ad-return-value (concat flex-isearch-prefix ad-return-value))
     ad-return-value))
 
+;;;###autoload
 (define-minor-mode flex-isearch-mode
   "Flex matching (similar to ido's flex matching) in incremental searches.
 
@@ -151,11 +152,13 @@ regexp that the search string is transformed to."
         (add-hook 'isearch-mode-end-hook 'flex-isearch-end-hook))
     (setq isearch-search-fun-function flex-isearch-original-search-fun)
     (remove-hook 'isearch-mode-end-hook 'flex-isearch-end-hook)))
-    
+
+;;;###autoload
 (defun turn-on-flex-isearch ()
   (interactive)
   (flex-isearch-mode 1))
 
+;;;###autoload
 (defun turn-off-flex-isearch ()
   (interactive)
   (flex-isearch-mode 0))
