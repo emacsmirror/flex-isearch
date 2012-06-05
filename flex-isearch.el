@@ -187,6 +187,24 @@ searching during a normal isearch."
   (interactive)
   (flex-isearch-mode 0))
 
+;;;###autoload
+(defun flex-isearch-forward (&optional regexp-p no-recursive-edit)
+  "Like `isearch-forward', but with flex searching."
+  (interactive "P\np")
+  (when (and flex-isearch-mode
+           (null regexp-p))
+    (flex-isearch-activate))
+  (isearch-mode t (not (null regexp-p)) nil (not no-recursive-edit)))
+
+;;;###autoload
+(defun flex-isearch-backward (&optional regexp-p no-recursive-edit)
+  "Like `isearch-backward', but with flex searching."
+  (interactive "P\np")
+  (when (and flex-isearch-mode
+           (null regexp-p))
+    (flex-isearch-activate))
+  (isearch-mode nil (not (null regexp-p)) nil (not no-recursive-edit)))
+
 (provide 'flex-isearch)
 
 ;;; flex-isearch.el ends here
