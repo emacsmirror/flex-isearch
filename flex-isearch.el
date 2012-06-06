@@ -203,6 +203,38 @@ a non-word character inserts '.*<char>'
     (ad-set-arg 0 nil))
   ad-do-it)
 
+;; this is activated in flex-isearch-mode
+(defadvice isearch-toggle-regexp (around flex-isearch disable compile)
+  "ISearch -> Regexp -> Flex -> Word -> ISearch"
+  
+  ;; The status stack is left unchanged.
+  (cond
+   (isearch-regexp
+    ;; turn on flex (or word)
+    (if flex-isearch-mode
+        (progn 
+          (flex-isearch-activate)
+          (setq isearch-regexp nil
+                isearch-word nil))
+      (setq isearch-regexp nil
+            isearch-word t)))
+   (flex-isearch-activated
+    ;; turnon word
+    (flex-isearch-deactivate)
+    (setq isearch-regexp nil
+          isearch-word t))
+   (isearch-word
+    ;; turn on normal
+    (setq isearch-regexp nil
+          isearch-word nil))
+   (t
+    ;; turn on regexp
+    (setq isearch-regexp t
+          isearch-word nil)))
+  (setq isearch-adjusted t
+        isearch-success t)
+  (isearch-update))
+
 ;;; External Functions
 
 ;;;###autoload
@@ -228,9 +260,13 @@ searching during a normal isearch."
       (progn
         (setq flex-isearch-original-search-fun isearch-search-fun-function)
         (setq isearch-search-fun-function 'flex-isearch-search-fun)
-        (add-hook 'isearch-mode-end-hook 'flex-isearch-end-hook))
+        (add-hook 'isearch-mode-end-hook 'flex-isearch-end-hook)
+        (ad-enable-advice 'isearch-toggle-regexp 'around 'flex-isearch)
+        (ad-activate 'isearch-toggle-regexp))
     (setq isearch-search-fun-function flex-isearch-original-search-fun)
-    (remove-hook 'isearch-mode-end-hook 'flex-isearch-end-hook)))
+    (remove-hook 'isearch-mode-end-hook 'flex-isearch-end-hook)
+    (ad-disable-advice 'isearch-toggle-regexp 'around 'flex-isearch)
+    (ad-activate 'isearch-toggle-regexp)))
 
 ;;;###autoload
 (defun turn-on-flex-isearch ()
