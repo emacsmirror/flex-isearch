@@ -279,7 +279,7 @@ searching during a normal isearch."
   (flex-isearch-mode 0))
 
 ;;;###autoload
-(define-global-minor-mode global-flex-isearch
+(define-global-minor-mode global-flex-isearch-mode
   flex-isearch-mode
   turn-on-flex-isearch)
 
