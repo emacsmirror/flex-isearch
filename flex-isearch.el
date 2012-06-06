@@ -188,6 +188,7 @@ C-s).  It also uses `flex-isearch-auto' to possibly enable flex
 searching during a normal isearch."
 
   :init-value nil
+  :group 'flex-isearch
   (if flex-isearch-mode
       (progn
         (setq flex-isearch-original-search-fun isearch-search-fun-function)
@@ -205,6 +206,11 @@ searching during a normal isearch."
 (defun turn-off-flex-isearch ()
   (interactive)
   (flex-isearch-mode 0))
+
+;;;###autoload
+(define-global-minor-mode global-flex-isearch
+  flex-isearch-mode
+  turn-on-flex-isearch)
 
 ;;;###autoload
 (defun flex-isearch-forward (&optional regexp-p no-recursive-edit)
