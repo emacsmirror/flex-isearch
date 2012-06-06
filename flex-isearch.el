@@ -1,9 +1,10 @@
 ;;; flex-isearch.el --- Flex matching (like ido) in isearch.
 
 ;; Copyright (C) 2011 Jonathan Kotta
+;; Copyright (C) 2011 Le Wang
 
 ;; Author: Jonathan Kotta <jpkotta@gmail.com>
-;; Contributors: Tomohiro Matsuyama
+;; Contributors: Tomohiro Matsuyama, Le Wang
 ;; Keywords: convenience, search
 ;; Version: 20120605
 ;; URL: https://bitbucket.org/jpkotta/flex-isearch
@@ -39,6 +40,10 @@
 ;; docstring for details.  Also, `isearch-forward' and
 ;; `isearch-backward' are advised so that double prefix args (C-u C-u
 ;; C-s) will use flex search.
+
+;; Le Wang has improved this by providing a better
+;; `flex-isearch-compile-regexp' and the advice on
+;; `isearch-toggle-regexp'.
 
 ;;; Code:
 
@@ -101,13 +106,43 @@ automatically."
 
 (defun flex-isearch-regexp-compile (string)
   "Transform a normal isearch query string to a regular
-  expression that matches the original string but also similar
-  strings. "
-  (concat "\\<"
-          (mapconcat #'regexp-quote
-                     (split-string string "")
-                     "[[:graph:]]*?") ;; non-greedy * operator
-          "\\>"))
+expression that matches the original string but also similar
+strings.
+
+TWO consecutive spaces inserts a '.*'
+a non-word character inserts '.*<char>'
+"
+  (let (last-result-non-word)
+    (mapconcat (lambda (str)
+                 (concat "\\<"
+                         (let ((first-run t))
+                           (mapconcat
+                            (lambda (str)
+                              (prog1
+                                  (cond ((zerop (length str))
+                                         (if first-run
+                                             "[[:graph:]]*?"
+                                           str))
+                                        ((eq ?w (char-syntax (aref str 0)))
+                                         (setq last-result-non-word nil)
+                                         (concat (regexp-quote str)
+                                                 "[[:graph:]]*?"))
+                                        ((memq (aref str 0) '(?  ?\t))
+                                         (setq last-result-non-word t)
+                                         "[ \t]+")
+                                        (t
+                                         (setq last-result-non-word t)
+                                         (concat
+                                          ".*?"
+                                          (regexp-quote str))))
+                                (setq first-run nil)))
+                            (split-string str "")
+                            ""))
+                         (if last-result-non-word
+                             ""
+                           "\\>")))
+               (split-string string " \\{2\\}")
+               ".*")))
 
 (defun flex-search-forward (string &optional bound noerror count)
   "A function suitable to be returned by
