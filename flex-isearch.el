@@ -6,7 +6,7 @@
 ;; Author: Jonathan Kotta <jpkotta@gmail.com>
 ;; Contributors: Tomohiro Matsuyama, Le Wang
 ;; Keywords: convenience, search
-;; Version: 20120605
+;; Version: 20130508
 ;; URL: https://bitbucket.org/jpkotta/flex-isearch
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -89,11 +89,6 @@ automatically."
 
 (defvar flex-isearch-failed-count 0
   "Used to decide when to activate flex searching ")
-
-(defvar flex-isearch-original-search-fun 'isearch-search-fun-default
-  "Saves the original value of `isearch-search-fun-function' when
-  `flex-isearch-mode' is enabled.")
-(make-variable-buffer-local 'flex-isearch-original-search-fun)
 
 ;;; Internal Functions
 
@@ -259,14 +254,12 @@ searching during a normal isearch."
   :group 'flex-isearch
   (if flex-isearch-mode
       (progn
-        (unless (eq isearch-search-fun-function 'flex-isearch-search-fun)
-          (setq flex-isearch-original-search-fun isearch-search-fun-function))
-        (setq isearch-search-fun-function 'flex-isearch-search-fun)
+        (set (make-local-variable 'isearch-search-fun-function) 'flex-isearch-search-fun)
         (add-hook 'isearch-mode-end-hook 'flex-isearch-end-hook)
         (ad-enable-advice 'isearch-toggle-regexp 'around 'flex-isearch)
         (ad-activate 'isearch-toggle-regexp)
         (flex-isearch-deactivate))
-    (setq isearch-search-fun-function flex-isearch-original-search-fun)
+    (kill-local-variable 'isearch-search-fun-function)
     (remove-hook 'isearch-mode-end-hook 'flex-isearch-end-hook)
     (ad-disable-advice 'isearch-toggle-regexp 'around 'flex-isearch)
     (ad-activate 'isearch-toggle-regexp)
